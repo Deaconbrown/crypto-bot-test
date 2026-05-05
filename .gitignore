@@ -1,0 +1,4 @@
+dashboard_data.json
+trade_log_*.json
+__pycache__/
+*.pyc
