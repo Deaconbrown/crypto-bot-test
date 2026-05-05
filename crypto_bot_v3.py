@@ -68,10 +68,10 @@ DAILY_SUMMARY_HOUR = 8   # 8 = 8:00 AM
 DASHBOARD_DATA_FILE = "dashboard_data.json"
 
 # Email
-EMAIL_ENABLED  = False
-EMAIL_FROM     = "your_email@gmail.com"
-EMAIL_PASSWORD = "your_app_password_here"
-EMAIL_TO       = "your_email@gmail.com"
+EMAIL_ENABLED  = os.environ.get("EMAIL_ENABLED", "false").lower() == "true"
+EMAIL_FROM     = os.environ.get("EMAIL_FROM", "")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
+EMAIL_TO       = os.environ.get("EMAIL_TO", "")
 
 # SMS (Twilio)
 SMS_ENABLED        = False
