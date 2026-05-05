@@ -338,8 +338,8 @@ def build_daily_summary(current_prices):
             unr = (curr - pos["buy_price"]) * pos["coins_held"]
             unrealised += unr
             open_positions_lines.append(
-                f"  • {coin}: bought @ ${pos['buy_price']:,.4f} | "
-                f"now ${curr:,.4f} | unrealised ${unr:+.2f}"
+                f"  • {coin}: bought @ {gbp(pos['buy_price'])} | "
+                f"now {gbp(curr)} | unrealised £{to_gbp(unr):+.2f}"
             )
 
     # Build the report text
@@ -349,14 +349,14 @@ def build_daily_summary(current_prices):
         "",
         "TODAY",
         f"  Trades:        {len(today_trades)} ({len(buys_today)} buys, {len(sells_today)} sells)",
-        f"  P&L today:     ${pnl_today:+.2f}",
+        f"  P&L today:     £{to_gbp(pnl_today):+.2f}",
         f"  Wins / Losses: {wins_today}W / {losses_today}L",
         "",
         "ALL TIME",
-        f"  Total P&L:     ${paper_portfolio['total_pnl']:+.2f}",
+        f"  Total P&L:     £{to_gbp(paper_portfolio['total_pnl']):+.2f}",
         f"  Win rate:      {win_rate:.0f}% ({total_wins}W / {total_losses}L)",
-        f"  Cash left:     ${paper_portfolio['cash']:,.2f}",
-        f"  Unrealised:    ${unrealised:+.2f}",
+        f"  Cash left:     £{to_gbp(paper_portfolio['cash']):,.2f}",
+        f"  Unrealised:    £{to_gbp(unrealised):+.2f}",
         "",
     ]
 
