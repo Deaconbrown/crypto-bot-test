@@ -26,11 +26,8 @@ HOW TO RUN:
 
 import requests
 import time
-import smtplib
 import json
 import os
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from datetime import datetime, date
 
 
