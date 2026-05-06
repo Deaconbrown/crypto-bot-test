@@ -270,15 +270,15 @@ def send_email(subject, message):
     if not EMAIL_ENABLED:
         return
     try:
-        msg             = MIMEMultipart()
-        msg["From"]     = EMAIL_FROM
-        msg["To"]       = EMAIL_TO
-        msg["Subject"]  = f"[Crypto Bot] {subject}"
-        msg.attach(MIMEText(message, "plain"))
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-            s.login(EMAIL_FROM, EMAIL_PASSWORD)
-            s.send_message(msg)
-        print(f"  [EMAIL] Sent: {subject}")
+        import resend
+        resend.api_key = os.environ.get("RESEND_API_KEY", "")
+        resend.Emails.send({
+            "from": "Crypto Bot <onboarding@resend.dev>",
+            "to": [EMAIL_TO],
+            "subject": f"[Crypto Bot] {subject}",
+            "text": message,
+        })
+        print(f"  [EMAIL] Sent via Resend: {subject}")
     except Exception as e:
         print(f"  [EMAIL ERROR] {e}")
 
