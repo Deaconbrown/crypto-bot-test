@@ -97,7 +97,8 @@ def get_drive_service():
     client_b64 = os.environ.get("GDRIVE_CLIENT_B64", "")
     folder_id = os.environ.get("GDRIVE_FOLDER_ID", "")
 
-    if not token_b64 or not client_b64 or not folder_id:
+    print(f"  [DRIVE DEBUG] TOKEN len={len(token_b64)} CLIENT len={len(client_b64)} FOLDER len={len(folder_id)}")
+    if not token_b64 or not folder_id:
         print("  [DRIVE] Env vars missing — state persistence disabled")
         return None, None
 
