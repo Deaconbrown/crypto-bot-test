@@ -593,6 +593,11 @@ def run_bot():
     print(f"  Dashboard:      run dashboard.py → http://localhost:5000")
     print("=" * 55 + "\n")
 
+    print("  [ENV CHECK] Listing all GDRIVE and EMAIL env vars:")
+    for key, val in os.environ.items():
+        if key.startswith("GDRIVE") or key.startswith("EMAIL") or key.startswith("RESEND"):
+            print(f"  [ENV] {key} = {'SET (len=' + str(len(val)) + ')' if val else 'EMPTY'}")
+
     # Fetch live GBP rate on startup
     fetch_gbp_rate()
     load_state_from_drive()
