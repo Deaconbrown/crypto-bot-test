@@ -79,6 +79,104 @@ SMS_TO_NUMBER      = "+447700000000"
 
 
 # ─────────────────────────────────────────────
+#  GOOGLE DRIVE STATE PERSISTENCE
+#  Saves and loads portfolio state to Google Drive
+#  so positions survive Railway restarts
+# ─────────────────────────────────────────────
+
+STATE_FILENAME = "crypto_bot_state.json"
+
+def get_drive_service():
+    """Authenticates with Google Drive using credentials from Railway env vars."""
+    import pickle, base64
+    from google.oauth2.credentials import Credentials
+    from google.auth.transport.requests import Request
+    from googleapiclient.discovery import build
+
+    token_b64 = os.environ.get("GDRIVE_TOKEN_B64", "")
+    client_b64 = os.environ.get("GDRIVE_CLIENT_B64", "")
+    folder_id = os.environ.get("GDRIVE_FOLDER_ID", "")
+
+    if not token_b64 or not client_b64 or not folder_id:
+        print("  [DRIVE] Env vars missing — state persistence disabled")
+        return None, None
+
+    token_data = base64.b64decode(token_b64.encode("utf-8"))
+    creds = pickle.loads(token_data)
+
+    if creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+
+    service = build("drive", "v3", credentials=creds)
+    return service, folder_id
+
+
+def save_state_to_drive():
+    """Saves the current portfolio state to Google Drive as a JSON file."""
+    try:
+        service, folder_id = get_drive_service()
+        if not service:
+            return
+
+        from googleapiclient.http import MediaInMemoryUpload
+        state = {
+            "cash": paper_portfolio["cash"],
+            "positions": paper_portfolio["positions"],
+            "trade_log": paper_portfolio["trade_log"],
+            "total_pnl": paper_portfolio["total_pnl"],
+            "saved_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        content = json.dumps(state, indent=2).encode("utf-8")
+        media = MediaInMemoryUpload(content, mimetype="application/json")
+
+        results = service.files().list(
+            q=f"name='{STATE_FILENAME}' and '{folder_id}' in parents and trashed=false",
+            fields="files(id)"
+        ).execute()
+        existing = results.get("files", [])
+
+        if existing:
+            service.files().update(fileId=existing[0]["id"], media_body=media).execute()
+            print(f"  [DRIVE] State updated in Google Drive")
+        else:
+            metadata = {"name": STATE_FILENAME, "parents": [folder_id]}
+            service.files().create(body=metadata, media_body=media).execute()
+            print(f"  [DRIVE] State saved to Google Drive (new file)")
+
+    except Exception as e:
+        print(f"  [DRIVE ERROR] {e}")
+
+
+def load_state_from_drive():
+    """Loads portfolio state from Google Drive on startup."""
+    try:
+        service, folder_id = get_drive_service()
+        if not service:
+            return
+
+        results = service.files().list(
+            q=f"name='{STATE_FILENAME}' and '{folder_id}' in parents and trashed=false",
+            fields="files(id, name)"
+        ).execute()
+        files = results.get("files", [])
+
+        if not files:
+            print("  [DRIVE] No saved state found — starting fresh")
+            return
+
+        content = service.files().get_media(fileId=files[0]["id"]).execute()
+        state = json.loads(content.decode("utf-8"))
+
+        paper_portfolio["cash"] = state["cash"]
+        paper_portfolio["positions"] = state["positions"]
+        paper_portfolio["trade_log"] = state["trade_log"]
+        paper_portfolio["total_pnl"] = state["total_pnl"]
+        print(f"  [DRIVE] State loaded — cash: £{to_gbp(paper_portfolio['cash']):.2f}, positions: {len(paper_portfolio['positions'])}, trades: {len(paper_portfolio['trade_log'])}")
+
+    except Exception as e:
+        print(f"  [DRIVE ERROR] {e}")
+
+# ─────────────────────────────────────────────
 #  GBP CONVERSION
 # ─────────────────────────────────────────────
 
@@ -496,6 +594,7 @@ def run_bot():
 
     # Fetch live GBP rate on startup
     fetch_gbp_rate()
+    load_state_from_drive()
 
     while True:
         print(f"[{datetime.now().strftime('%H:%M')}] Scanning {len(COINS)} coins...\n")
@@ -546,6 +645,7 @@ def run_bot():
         # Write dashboard data
         write_dashboard_data(current_prices, coin_stats)
         print(f"  [DASHBOARD] Data written to {DASHBOARD_DATA_FILE}")
+        save_state_to_drive()
 
         print_status(current_prices)
 
