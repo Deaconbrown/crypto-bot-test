@@ -97,7 +97,6 @@ def get_drive_service():
     client_b64 = os.environ.get("GDRIVE_CLIENT_B64", "")
     folder_id = os.environ.get("GDRIVE_FOLDER_ID", "")
 
-    print(f"  [DRIVE DEBUG] TOKEN len={len(token_b64)} CLIENT len={len(client_b64)} FOLDER len={len(folder_id)}")
     if not token_b64 or not folder_id:
         print("  [DRIVE] Env vars missing — state persistence disabled")
         return None, None
@@ -592,11 +591,6 @@ def run_bot():
     print(f"  Daily summary:  {DAILY_SUMMARY_HOUR:02d}:00 daily")
     print(f"  Dashboard:      run dashboard.py → http://localhost:5000")
     print("=" * 55 + "\n")
-
-    print("  [ENV CHECK] Listing all GDRIVE and EMAIL env vars:")
-    for key, val in os.environ.items():
-        if key.startswith("GDRIVE") or key.startswith("EMAIL") or key.startswith("RESEND"):
-            print(f"  [ENV] {key} = {'SET (len=' + str(len(val)) + ')' if val else 'EMPTY'}")
 
     # Fetch live GBP rate on startup
     fetch_gbp_rate()
