@@ -62,7 +62,7 @@ USD_TO_GBP      = 0.7508  # $1 USD = £0.7508 (live rate 2026-03-22)
 DAILY_SUMMARY_HOUR = 8   # 8 = 8:00 AM
 
 # File the dashboard reads (keep default unless you change dashboard.py too)
-DASHBOARD_DATA_FILE = "dashboard_data.json"
+DASHBOARD_DATA_FILE = "data/dashboard_data.json"
 
 # Email
 EMAIL_ENABLED  = os.environ.get("EMAIL_ENABLED", "false").lower() == "true"

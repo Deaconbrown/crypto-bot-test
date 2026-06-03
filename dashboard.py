@@ -26,7 +26,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-DASHBOARD_DATA_FILE = "dashboard_data.json"
+DASHBOARD_DATA_FILE = "data/dashboard_data.json"
 
 # ─────────────────────────────────────────────
 #  HTML TEMPLATE
