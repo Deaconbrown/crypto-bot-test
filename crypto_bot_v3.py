@@ -368,7 +368,7 @@ def send_email(subject, message):
         import resend
         resend.api_key = os.environ.get("RESEND_API_KEY", "")
         resend.Emails.send({
-            "from": "Crypto Bot <onboarding@resend.dev>",
+            "from": "Crypto Bot <bot@senalai.com>",
             "to": [EMAIL_TO],
             "subject": f"[Crypto Bot] {subject}",
             "text": message,
