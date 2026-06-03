@@ -475,4 +475,4 @@ if __name__ == "__main__":
     print(f"  Open in browser:   http://localhost:5000")
     print(f"  Auto-refreshes:    every 60 seconds")
     print("=" * 45 + "\n")
-    app.run(debug=False, port=5000)
+    app.run(host="0.0.0.0", debug=False, port=5000)
